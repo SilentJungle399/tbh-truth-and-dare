@@ -30,7 +30,7 @@ class Management(commands.Cog):
 			data = json.load(f)
 
 		if user.id in data["whitelist"]:
-			await ctx.send(f"{user.mention} is already whitelisted.")
+			await ctx.reply(f"{user.mention} is already whitelisted.")
 			return
 
 		data["whitelist"].append(user.id)
@@ -38,7 +38,7 @@ class Management(commands.Cog):
 		with open("data.json", "w") as f:
 			json.dump(data, f, indent=4)
 
-		await ctx.send(f"{user.mention} has been added to the whitelist.")
+		await ctx.reply(f"{user.mention} has been added to the whitelist.")
 
 	@commands.hybrid_command(
 		name = "unwhitelist",
@@ -56,7 +56,7 @@ class Management(commands.Cog):
 			data = json.load(f)
 
 		if user.id not in data["whitelist"]:
-			await ctx.send(f"{user.mention} is not whitelisted.")
+			await ctx.reply(f"{user.mention} is not whitelisted.")
 			return
 
 		data["whitelist"].remove(user.id)
@@ -64,7 +64,7 @@ class Management(commands.Cog):
 		with open("data.json", "w") as f:
 			json.dump(data, f, indent=4)
 
-		await ctx.send(f"{user.mention} has been removed from the whitelist.")
+		await ctx.reply(f"{user.mention} has been removed from the whitelist.")
 
 	@commands.hybrid_command(
 		name = "whitelistlist",
@@ -82,7 +82,7 @@ class Management(commands.Cog):
 			data = json.load(f)
 
 		if not data["whitelist"]:
-			await ctx.send("The whitelist is currently empty.")
+			await ctx.reply("The whitelist is currently empty.")
 			return
 
 		embed = discord.Embed(
@@ -91,7 +91,7 @@ class Management(commands.Cog):
 			color = discord.Color.green()
 		)
 
-		await ctx.send(embed=embed)
+		await ctx.reply(embed=embed)
 
 	@commands.hybrid_command(
 		name = "add",
@@ -109,7 +109,7 @@ class Management(commands.Cog):
 	)
 	async def add(self, ctx: commands.Context, _type: str, *, question: str):
 		if _type not in ["truth", "dare"]:
-			await ctx.send("Invalid type. Please specify 'truth' or 'dare'.")
+			await ctx.reply("Invalid type. Please specify 'truth' or 'dare'.")
 			return
 
 		with open("data.json", "r") as f:
@@ -120,7 +120,7 @@ class Management(commands.Cog):
 		with open("data.json", "w") as f:
 			json.dump(data, f, indent=4)
 
-		await ctx.send(f"Added a new {_type} question to the database.")
+		await ctx.reply(f"Added a new {_type} question to the database.")
 
 	@commands.hybrid_command(
 		name = "remove",
@@ -138,14 +138,14 @@ class Management(commands.Cog):
 	)
 	async def remove(self, ctx: commands.Context, _type: str, *, question: str):
 		if _type not in ["truth", "dare"]:
-			await ctx.send("Invalid type. Please specify 'truth' or 'dare'.")
+			await ctx.reply("Invalid type. Please specify 'truth' or 'dare'.")
 			return
 
 		with open("data.json", "r") as f:
 			data = json.load(f)
 
 		if question not in data[_type]:
-			await ctx.send(f"The specified question was not found in the {_type} database.")
+			await ctx.reply(f"The specified question was not found in the {_type} database.")
 			return
 
 		data[_type].remove(question)
@@ -153,7 +153,7 @@ class Management(commands.Cog):
 		with open("data.json", "w") as f:
 			json.dump(data, f, indent=4)
 
-		await ctx.send(f"Removed the specified {_type} question from the database.")
+		await ctx.reply(f"Removed the specified {_type} question from the database.")
 	
 	@commands.hybrid_command(
 		name = "questions",
@@ -171,19 +171,19 @@ class Management(commands.Cog):
 	)
 	async def questions(self, ctx: commands.Context, _type: str):
 		if _type not in ["truth", "dare"]:
-			await ctx.send("Invalid type. Please specify 'truth' or 'dare'.")
+			await ctx.reply("Invalid type. Please specify 'truth' or 'dare'.")
 			return
 
 		with open("data.json", "r") as f:
 			data = json.load(f)
 
 		if not data[_type]:
-			await ctx.send(f"There are currently no {_type} questions in the database.")
+			await ctx.reply(f"There are currently no {_type} questions in the database.")
 			return
 		
 		# send a file
 		file = io.StringIO("\n".join(data[_type]))
-		await ctx.send(file=discord.File(file, filename=f"{_type}_questions.txt"))
+		await ctx.reply(file=discord.File(file, filename=f"{_type}_questions.txt"))
 
 		file.close()
 

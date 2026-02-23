@@ -37,7 +37,7 @@ class Game(commands.Cog):
 		embed = await get_random("truth")
 		embed.set_author(name = ctx.author.display_name, icon_url = ctx.author.display_avatar.url if ctx.author.display_avatar else None)
 
-		await ctx.send(embed=embed, view=GameView())
+		await ctx.reply(embed=embed, view=GameView())
 
 	@commands.hybrid_command(
 		name = "dare",
@@ -48,7 +48,7 @@ class Game(commands.Cog):
 		embed = await get_random("dare")
 		embed.set_author(name = ctx.author.display_name, icon_url = ctx.author.display_avatar.url if ctx.author.display_avatar else None)
 
-		await ctx.send(embed=embed, view=GameView())
+		await ctx.reply(embed=embed, view=GameView())
 
 
 class GameView(View):
