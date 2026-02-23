@@ -4,15 +4,18 @@ import json
 import os
 import io
 
-class Management(commands.Cog):
-	def __init__(self, bot):
-		self.bot = bot
 
-	async def whitelist_check(self, ctx):
+def whitelist_check(self):
+	async def predicate(ctx):
 		with open("data.json", "r") as f:
 			data = json.load(f)
 
 		return ctx.author.id in data["whitelist"]
+	return commands.check(predicate)
+
+class Management(commands.Cog):
+	def __init__(self, bot):
+		self.bot = bot
 
 	@commands.hybrid_command(
 		name = "whitelist",
@@ -105,7 +108,7 @@ class Management(commands.Cog):
 			os.getenv("MANAGEMENT_ROLE")
 		),
 		commands.is_owner(),
-		commands.check(whitelist_check)
+		whitelist_check()
 	)
 	async def add(self, ctx: commands.Context, _type: str, *, question: str):
 		if _type not in ["truth", "dare"]:
@@ -134,7 +137,7 @@ class Management(commands.Cog):
 			os.getenv("MANAGEMENT_ROLE")
 		),
 		commands.is_owner(),
-		commands.check(whitelist_check)
+		whitelist_check()
 	)
 	async def remove(self, ctx: commands.Context, _type: str, *, question: str):
 		if _type not in ["truth", "dare"]:
@@ -167,7 +170,7 @@ class Management(commands.Cog):
 			os.getenv("MANAGEMENT_ROLE")
 		),
 		commands.is_owner(),
-		commands.check(whitelist_check)
+		whitelist_check()
 	)
 	async def questions(self, ctx: commands.Context, _type: str):
 		if _type not in ["truth", "dare"]:
