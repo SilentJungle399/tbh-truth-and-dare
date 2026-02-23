@@ -40,7 +40,7 @@ class Client(commands.Bot):
 			status=discord.Status.online, 
 			activity=discord.Activity(
 				type=discord.ActivityType.listening, 
-				name='>>help | /help'
+				name='>>truth | >>dare'
 			)
 		)
 

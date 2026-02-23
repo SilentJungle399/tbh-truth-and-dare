@@ -2,17 +2,29 @@ from discord.ext import commands
 import discord
 import json
 import os
+import io
 
 class Management(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
+
+	async def whitelist_check(self, ctx):
+		with open("data.json", "r") as f:
+			data = json.load(f)
+
+		return ctx.author.id in data["whitelist"]
 
 	@commands.hybrid_command(
 		name = "whitelist",
 		description = "Add a user to the whitelist. Only the bot owner can use this command.",
 		with_app_command = True
 	)
-	@commands.is_owner()
+	@commands.check_any(
+		commands.has_any_role(
+			os.getenv("ADMIN_ROLE"), 
+		),
+		commands.is_owner()
+	)
 	async def whitelist(self, ctx: commands.Context, user: discord.User):
 		with open("data.json", "r") as f:
 			data = json.load(f)
@@ -33,7 +45,12 @@ class Management(commands.Cog):
 		description = "Remove a user from the whitelist. Only the bot owner can use this command.",
 		with_app_command = True
 	)
-	@commands.is_owner()
+	@commands.check_any(
+		commands.has_any_role(
+			os.getenv("ADMIN_ROLE"), 
+		),
+		commands.is_owner()
+	)
 	async def unwhitelist(self, ctx: commands.Context, user: discord.User):
 		with open("data.json", "r") as f:
 			data = json.load(f)
@@ -54,7 +71,12 @@ class Management(commands.Cog):
 		description = "List all whitelisted users. Only the bot owner can use this command.",
 		with_app_command = True
 	)
-	@commands.is_owner()
+	@commands.check_any(
+		commands.has_any_role(
+			os.getenv("ADMIN_ROLE"), 
+		),
+		commands.is_owner()
+	)
 	async def whitelistlist(self, ctx: commands.Context):
 		with open("data.json", "r") as f:
 			data = json.load(f)
@@ -82,7 +104,8 @@ class Management(commands.Cog):
 			os.getenv("ADMIN_ROLE"), 
 			os.getenv("MANAGEMENT_ROLE")
 		),
-		commands.is_owner()
+		commands.is_owner(),
+		commands.check(whitelist_check)
 	)
 	async def add(self, ctx: commands.Context, _type: str, *, question: str):
 		if _type not in ["truth", "dare"]:
@@ -110,7 +133,8 @@ class Management(commands.Cog):
 			os.getenv("ADMIN_ROLE"), 
 			os.getenv("MANAGEMENT_ROLE")
 		),
-		commands.is_owner()
+		commands.is_owner(),
+		commands.check(whitelist_check)
 	)
 	async def remove(self, ctx: commands.Context, _type: str, *, question: str):
 		if _type not in ["truth", "dare"]:
@@ -130,6 +154,39 @@ class Management(commands.Cog):
 			json.dump(data, f, indent=4)
 
 		await ctx.send(f"Removed the specified {_type} question from the database.")
+	
+	@commands.hybrid_command(
+		name = "questions",
+		description = "List all truth or dare questions in the database.",
+		with_app_command = True
+	)
+	@commands.check_any(
+		commands.has_any_role(
+			os.getenv("MODERATOR_ROLE"), 
+			os.getenv("ADMIN_ROLE"),
+			os.getenv("MANAGEMENT_ROLE")
+		),
+		commands.is_owner(),
+		commands.check(whitelist_check)
+	)
+	async def questions(self, ctx: commands.Context, _type: str):
+		if _type not in ["truth", "dare"]:
+			await ctx.send("Invalid type. Please specify 'truth' or 'dare'.")
+			return
+
+		with open("data.json", "r") as f:
+			data = json.load(f)
+
+		if not data[_type]:
+			await ctx.send(f"There are currently no {_type} questions in the database.")
+			return
+		
+		# send a file
+		file = io.StringIO("\n".join(data[_type]))
+		await ctx.send(file=discord.File(file, filename=f"{_type}_questions.txt"))
+
+		file.close()
+
 
 async def setup(bot):
 	await bot.add_cog(Management(bot))
