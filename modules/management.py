@@ -5,7 +5,7 @@ import os
 import io
 
 
-def whitelist_check(self):
+def whitelist_check():
 	async def predicate(ctx):
 		with open("data.json", "r") as f:
 			data = json.load(f)
